@@ -2,8 +2,45 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import {
+  Client,
+  useStreamMessages,
+  useClient,
+  useMessages,
+  useConversations,
+  useCanMessage,
+  useStartConversation,
+} from "@xmtp/react-sdk";
+import { useEffect } from 'react'; 
+import {useWalletClient} from 'wagmi'
+import { Address } from 'viem';
+import { useEthersSigner } from '../signers/signers'
 
 const Home: NextPage = () => {
+  const { client, initialize } = useClient();
+  const { conversations } = useConversations();
+  const { startConversation } = useStartConversation();
+  const { canMessage } = useCanMessage();
+  const result = useWalletClient()
+  const signer = useEthersSigner()
+useEffect(()=>{
+   console.log(`result ${JSON.stringify(result)}`)
+  async function createClient() {
+    try
+    {const xmtp = await Client.create(signer, { env: "production" });
+    console.log("Client created", xmtp.address);
+    const conversation = await xmtp.conversations.newConversation("0x5858769800844ab75397775Ca2Fa87B270F7FbBe");
+console.log("Conversation created", conversation);
+  }catch(error)
+  {
+     console.log
+  }
+  }
+   if(result) {
+
+        createClient()
+       }
+},[result])
   return (
     <div className={styles.container}>
       <Head>
