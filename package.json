@@ -8,7 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.0.7",
+    "@fontsource-variable/inter": "^5.0.20",
     "@rainbow-me/rainbowkit": "^2.1.5",
+    "@tailwindcss/typography": "^0.5.14",
     "@tanstack/react-query": "^5.51.11",
     "@xmtp/content-type-reaction": "^1.1.9",
     "@xmtp/content-type-remote-attachment": "^1.1.9",
@@ -23,6 +26,7 @@
     "wagmi": "^2.12.0"
   },
   "devDependencies": {
+    "@iconify/react": "^5.0.2",
     "@types/node": "^18.19.3",
     "@types/react": "^18.3.0",
     "autoprefixer": "^10.4.20",
