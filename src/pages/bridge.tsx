@@ -23,9 +23,9 @@ const Home: NextPage = () => {
        <div> <h1 className="mb-2 text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >
 Meme Coin Launcher.  Bridge
 </h1>
-<Bridge /><span className='flex flex-row pt-4'>Powered By  <img src="/images/layerzero.png"  className='ml-2 h-[30px]'/></span>
+<Bridge />
 
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full'/>
+</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
        </main> 
        <Footer />
 

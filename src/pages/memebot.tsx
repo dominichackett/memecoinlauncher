@@ -22,10 +22,10 @@ const Home: NextPage = () => {
         <main className="mt-14 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
        <div> <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >
 Meme Coin Launcher.  Chat Bot
-</h1>
-<ChatBot /><span className='flex flex-row pt-4'>Powered By  <img src="/images/xmtp.png"  className='ml-2 h-[30px]'/></span>
+</h1><span className='mb-2 flex flex-row pt-4'>Powered By  <img src="/images/xmtp.png"  className='ml-2 h-[30px]'/></span>
 
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full'/>
+<ChatBot />
+</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
        </main> 
        <Footer />
 

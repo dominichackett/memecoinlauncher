@@ -5,7 +5,9 @@ import styles from '../styles/Home.module.css';
 import {useState, useEffect,useCallback } from 'react'; 
 import Footer from '../components/Footer/Footer'
 import Header from '../components/Header/Header';
-import Verify from '../components/Verify/Verify'
+import CoinCard from '../components/CoinCard/CoinCard';
+const iconsize='64px'
+const tokens =[{},{},{},{},{},{},{},{},{},{}]
 const Home: NextPage = () => {
  
   return (
@@ -19,13 +21,11 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
         <Header />
-        <main className="mt-14 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
-       <div> <h1 className="mb-2 text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >
-Meme Coin Launcher.  Verify
-</h1>
-<Verify />
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
-       </main> 
+        <main className="mt-20 grid lg:grid-cols-4  gap-y-12 place-items-center pt-16 pb-16 md:pt-12 md:pb-24" >
+        {tokens.map((token,index)=>
+        <CoinCard />
+    )}
+        </main> 
        <Footer />
 
 </div>

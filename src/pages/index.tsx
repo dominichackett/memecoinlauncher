@@ -18,13 +18,13 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
         <Header />
-        <main className="mt-14 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
+        <main className="mt-20 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
        <div> <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold lg:tracking-tight xl:tracking-tighter" >
-Meme Coin Launcher. Cross Chain Meme Coins
+Meme Coin Launcher. <br/>AI Generated Cross Chain <br/>Meme Coins
 </h1><p className="text-lg mt-4 text-slate-600 max-w-xl" >
 Welcome to Meme Coin Launcher, your gateway to creating and launching the next viral meme-based cryptocurrency! Whether you're a seasoned crypto enthusiast or just starting out, our platform makes it easy to bring your meme coin idea to life. With a user-friendly interface, powerful tools, and step-by-step guidance, you can design, deploy, and share your meme coin with the world in no time. Join the meme coin revolution today and let your creativity shine on the blockchain!
 </p>
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full'/>
+</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
        </main> 
        <Footer />
 

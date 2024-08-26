@@ -40,10 +40,10 @@ const TokenBridge = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center p-8  bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-semibold text-center mb-6">Token Bridge</h1>
-
+        <span className='flex flex-row pt-2 mb-4'>Powered By  <img src="/images/layerzero.png"  className='ml-2 h-[30px]'/></span>
         {/* Token Selection */}
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="token">Select Token</label>

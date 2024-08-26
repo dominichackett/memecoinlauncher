@@ -23,9 +23,11 @@ const VerifyToken = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center p-8 bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-semibold text-center mb-6">Verify Token</h1>
+        <h1 className="text-2xl font-semibold text-center mb-4">Verify Token</h1>
+        <span className='flex flex-row pt-4 mb-2'>Powered By  <img src="/images/sign.webp"  className='ml-2 h-[60px]'/></span>
+
 
         {/* Token Selection */}
         <div className="mb-4">

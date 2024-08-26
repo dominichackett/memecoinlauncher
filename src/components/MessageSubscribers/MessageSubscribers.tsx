@@ -1,6 +1,6 @@
 export default function MessageSubscribers() {
 
-    return ( <><div className="border border-black rounded-lg bg-gray-200 p-6 overflow-y-auto overflow-x-hidden max-h-[400px] h-[400px]  scrollbar-thumb-black scrollbar-track-white">
+    return ( <><div className="border border-4 border-black rounded-lg bg-gray-200 p-6 overflow-y-auto overflow-x-hidden max-h-[400px] h-[400px]  scrollbar-thumb-black scrollbar-track-white">
     
            
     
