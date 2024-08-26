@@ -83,6 +83,7 @@ import Link from 'next/link';
                           >
                             Home
                           </Link>
+                          
                         </li>
                         { isConnected  && <li className="group relative">
                           <Link
@@ -96,10 +97,10 @@ import Link from 'next/link';
                       
                         <li className="group relative">
                           <Link
-                            href="/support"
+                            href="/coins"
                             className="mx-8 flex py-2 text-base font-semibold text-[#bababa] group-hover:text-black lg:mr-0 lg:ml-8 lg:inline-flex lg:py-6 lg:px-0 xl:ml-12"
                           >
-                            Support
+                            Coins
                           </Link>
                         </li>
                       
