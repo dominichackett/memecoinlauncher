@@ -30,8 +30,8 @@ const Home: NextPage = () => {
         <a href="/verify"><div className='cursor-pointer flex flex-col items-center justify-center text-black hover:text-gray-500'><InlineIcon  style={{ fontSize: iconsize }} icon="bitcoin-icons:verify-filled" />
         <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >Verify</h1></div></a>
         <img src="/images/memecoin.jpg" className='h-[300px] rounded-full'/>
-        <a href="/staking"><div className='cursor-pointer flex flex-col items-center justify-center text-black hover:text-gray-500'><InlineIcon  style={{ fontSize: iconsize }} icon="vaadin:piggy-bank-coin" />
-        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >Staking</h1></div></a>
+        <a href="/staking"><div className='cursor-pointer flex flex-col items-center justify-center text-black hover:text-gray-500'><InlineIcon  style={{ fontSize: iconsize }} icon="uil:signout" />
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >Sign Out</h1></div></a>
        </main> 
        <Footer />
 
