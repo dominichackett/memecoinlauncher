@@ -549,6 +549,18 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@open-frames/proxy-client@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@open-frames/proxy-client/-/proxy-client-0.3.3.tgz#91713653738e926bc16316d62daace3bae142fe9"
+  integrity sha512-D1yLfP05w1hWQEEvppXvPhShOMZ1CB6slT93xCASkP1WOKP6IMTvt3k+5VVS68C2SThRPfqZNWW10W8Sns7xvg==
+  dependencies:
+    "@open-frames/proxy-types" "0.2.3"
+
+"@open-frames/proxy-types@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@open-frames/proxy-types/-/proxy-types-0.2.3.tgz#6a915a88bba4c654b6b4f98eae9e3acc4aa1032a"
+  integrity sha512-/dC64ORHJGXP7fLO4gvo1h4rPGCaQ4pf+oO6FaKiF/aXcN0uF2Sq446wysl7pZNQdFI2gQtQhbm+PUuRa84l3A==
+
 "@parcel/watcher-android-arm64@2.4.1":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@parcel/watcher-android-arm64/-/watcher-android-arm64-2.4.1.tgz#c2c19a3c442313ff007d2d7a9c2c1dd3e1c9ca84"
@@ -1392,6 +1404,16 @@
   dependencies:
     "@xmtp/content-type-primitives" "^1.0.1"
 
+"@xmtp/frames-client@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@xmtp/frames-client/-/frames-client-0.5.4.tgz#d8636718f44199f574da4016c2b5c7e885dadf61"
+  integrity sha512-efoMlZCXK2zx9kD0DPcztzoc/kCnNAFfthf4S34CLPjDFAUz0w10d1h3lf6GVZ7DVnEp5xw8Fhq2XqkSkk+ttA==
+  dependencies:
+    "@noble/hashes" "^1.4.0"
+    "@open-frames/proxy-client" "^0.3.3"
+    "@xmtp/proto" "3.62.1"
+    long "^5.2.3"
+
 "@xmtp/proto@3.54.0":
   version "3.54.0"
   resolved "https://registry.npmjs.org/@xmtp/proto/-/proto-3.54.0.tgz"
@@ -1406,6 +1428,16 @@
   version "3.56.0"
   resolved "https://registry.npmjs.org/@xmtp/proto/-/proto-3.56.0.tgz"
   integrity sha512-zW8/s7x9je0keYjJpu/c5zmYK5wE14MxcDWLkxzMwRmrajwdy69BNN0NgVJ1uBzMUqGTjnGQJANDev8lpa58qQ==
+  dependencies:
+    long "^5.2.0"
+    protobufjs "^7.0.0"
+    rxjs "^7.8.0"
+    undici "^5.8.1"
+
+"@xmtp/proto@3.62.1":
+  version "3.62.1"
+  resolved "https://registry.yarnpkg.com/@xmtp/proto/-/proto-3.62.1.tgz#f630a49705308253a465f96f7126b5aef70f9389"
+  integrity sha512-7LZz60EOKKfO5gqwaTaX7vaIRxZO9H3cQ+7SWI9XCQM9UGHdSvJKfQDPnJ4Z0E0GIJGLDoyQ44P2bvXCxC8SNA==
   dependencies:
     long "^5.2.0"
     protobufjs "^7.0.0"

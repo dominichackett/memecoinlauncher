@@ -17,6 +17,7 @@
     "@xmtp/content-type-reaction": "^1.1.9",
     "@xmtp/content-type-remote-attachment": "^1.1.9",
     "@xmtp/content-type-reply": "^1.1.11",
+    "@xmtp/frames-client": "^0.5.4",
     "@xmtp/react-sdk": "^8.0.1",
     "@xmtp/xmtp-js": "^12.1.0",
     "ethers": "^6.13.2",

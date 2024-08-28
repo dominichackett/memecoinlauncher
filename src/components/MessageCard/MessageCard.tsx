@@ -6,13 +6,18 @@ import {
   signFrameAction,
 } from "@frames.js/render/farcaster";
 import { fallbackFrameContext } from "@frames.js/render";
+import { useEthersSigner } from '../../signers/signers'
 
 import {
     FrameUI,
     type FrameUIComponents,
     type FrameUITheme,
   } from "@frames.js/render/ui";
-   
+  import {
+    useXmtpFrameContext,
+    useXmtpIdentity,
+  } from "@frames.js/render/identity/xmtp";
+import { useSendTransaction } from "wagmi";   
   /**
    * StylingProps is a type that defines the props that can be passed to the components to style them.
    */
@@ -61,11 +66,16 @@ interface Props {
   contentId:string
   typeId:string;
   sender:string;
+  userAddress:string;
+  topic:string;
 }
 
-function MessageCard({ content,contentId,typeId,sender }: Props) {
+function MessageCard({ content,contentId,typeId,sender,userAddress,topic }: Props) {
+    const signer = useEthersSigner()
+    const {sendTransaction} = useSendTransaction({})
+console.log(userAddress)
  // @TODO: replace with your farcaster signer
- const farcasterSigner: FarcasterSigner = {
+ /*const farcasterSigner: FarcasterSigner = {
     fid: 1,
     status: "approved",
     publicKey:
@@ -86,9 +96,8 @@ function MessageCard({ content,contentId,typeId,sender }: Props) {
     // map to your identity if you have one
     signerState: {
       hasSigner:
-        farcasterSigner.status === "approved" ||
-        farcasterSigner.status === "impersonating",
-      signer: farcasterSigner,
+        true,
+      signer: signer,
       isLoadingSigner: false,
       onSignerlessFramePress: () => {
         // Only run if `hasSigner` is set to `false`
@@ -104,8 +113,39 @@ function MessageCard({ content,contentId,typeId,sender }: Props) {
       },
     },
   });
+ */
+
+
+  const transact = async(hash)=>{
+    console.log(hash)
+
+    sendTransaction({to:hash.transactionData.params.to ,data:hash.transactionData.params.data})
+    return hash
+  }
+  const xmtpFrameContext = useXmtpFrameContext({
+    fallbackContext: {
+      conversationTopic:topic,
+      participantAccountAddresses: [userAddress],
+    },
+  });
+  const signerState = useXmtpIdentity({
+    // WebStorage is default value for storage option. It uses local storage by default.
+    // You can implement your own storage that implements the Storage interface from @frames.js/render/identity/types.
+    // storage: new WebStorage(),
+  });
+  const frameState = useFrame({
+    homeframeUrl: "https://my-frames-rouge.vercel.app/frames", // url to frame
+    frameActionProxy: "/api/frames",
+    frameGetProxy: "/api/frames",
+    frameContext: xmtpFrameContext.frameContext,
+    signerState,
+    connectedAddress:userAddress,
+    specification: "openframes",
+    onTransaction:transact
+  });
  
 
+if(content=="https://my-frames-rouge.vercel.app/frames")
   return (
     <div
     key={contentId}

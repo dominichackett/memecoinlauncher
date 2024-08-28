@@ -3,6 +3,7 @@ import { useMessages, useStreamMessages ,  useClient,useSendMessage
 import type { CachedConversation, DecodedMessage } from "@xmtp/react-sdk";
 import {useRef, useCallback, useEffect, useState } from "react";
  import MessageCard from "../MessageCard/MessageCard";
+ import { Address } from "viem";
 export const  ChatBot: React.FC<{
     conversation: CachedConversation ;
   }> = ({
@@ -52,7 +53,7 @@ return ( <><div       ref={divRef}
 
 
 {streamedMessages.map((message,index) => (
-<MessageCard key={message.id} contentId={message.id} content={message.content} typeId={message.contentType.typeId} sender={message.senderAddress} />
+<MessageCard key={message.id} contentId={message.id} content={message.content} typeId={message.contentType.typeId} sender={message.senderAddress} userAddress={conversation.walletAddress} topic={conversation.topic} />
 ))}
    
 
