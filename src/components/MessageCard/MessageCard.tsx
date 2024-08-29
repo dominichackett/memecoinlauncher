@@ -175,7 +175,7 @@ if(content=="https://my-frames-rouge.vercel.app/frames")
       />
       <div className="flex-1 p2">
         <p className="text-sm font-medium text-gray-900">{sender == process.env.NEXT_PUBLIC_BOT_ADDRESS ? "Meme Bot": "You"}</p>
-        <p className="text-sm text-gray-500 break-all">{content}</p>
+        <p className="whitespace-pre-wrap text-sm text-gray-500 break-all">{content}</p>
       </div>
     </div>
   </div>
