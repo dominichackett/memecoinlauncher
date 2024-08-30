@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "./interfaces/IOracle.sol";
 
-contract MemeBot {
+contract MemeBotMarketing {
 
 
     struct Message {
@@ -198,10 +198,10 @@ contract MemeBot {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
-
-   function finalizeSession(uint botsessionId) public{
+    function finalizeSession(uint botsessionId) public{
       require(msg.sender == botAddress,"Unauthorized sender or bot address");
       botsessions[botsessionId].isFinished = true;
 
    }
+
 }
