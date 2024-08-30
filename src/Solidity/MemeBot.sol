@@ -2,16 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "./interfaces/IOracle.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MemeBot {
 
-    struct Profile {
-        string imageUrl;
-        string name;
-        string description;
-        bool isvalue;
-    }
 
     struct Message {
         string role;
@@ -25,26 +18,15 @@ contract MemeBot {
         bool isFinished;
     }
 
-         struct Mybotsession {
-        uint id;    
-        address student;
-        string schoolSystem;
-        string schoolYear;
-        string subject;
-        uint messagesCount;
-    
-       bool isFinished;
-    }
-
+     
 
       mapping(uint => BotSession) private botsessions;
       mapping(address=> uint[]) private mybotsessions;
-      mapping  (address=>Profile) profiles;
 
       uint private botsessionsCount;
 
       event BotSessionCreated(address indexed owner, uint indexed sessionId);
-      event OracleResponse(uint indexed  sessionId,uint responseDate);
+      event OracleResponse(uint indexed  sessionId,address user,string response,string role,uint responseDate);
       address private owner;
       address public oracleAddress;
       address public botAddress;
@@ -77,7 +59,9 @@ contract MemeBot {
         });
     }
 
-        function startBotSession(string memory prompt ) public returns (uint i) {
+        function startBotSession(string memory prompt,address user ) public returns (uint i) {
+                require(msg.sender == botAddress,"Unauthorized sender or bot address");
+
                 BotSession storage botsession = botsessions[botsessionsCount];
 
         botsession.user= msg.sender;
@@ -90,6 +74,7 @@ contract MemeBot {
         userMessage.role = "user";
         botsession.messagesCount++;
         userMessage.content = prompt;
+        botsession.user =user;
         botsession.messages.push(userMessage);
 
         IOracle(oracleAddress).createOpenAiLlmCall(currentId, config);
@@ -148,7 +133,8 @@ contract MemeBot {
         botsession.messages.push(assistantMessage);
         }
         botsession.messagesCount++;
-        emit OracleResponse(runId,block.timestamp);
+        emit OracleResponse(runId,botsession.user,response.content,"assistant",block.timestamp);
+
 
     }
 
@@ -174,7 +160,7 @@ contract MemeBot {
         botsession.messages.push(assistantMessage);
         }
         botsession.messagesCount++;
-        emit OracleResponse(runId,block.timestamp);
+        emit OracleResponse(runId,botsession.user,response,"image",block.timestamp);
 
     }
 
