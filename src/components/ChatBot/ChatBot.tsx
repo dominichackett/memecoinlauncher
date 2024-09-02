@@ -4,6 +4,7 @@ import type { CachedConversation, DecodedMessage } from "@xmtp/react-sdk";
 import {useRef, useCallback, useEffect, useState } from "react";
  import MessageCard from "../MessageCard/MessageCard";
  import { Address } from "viem";
+ import {useChainId} from 'wagmi'
 export const  ChatBot: React.FC<{
     conversation: CachedConversation ;
   }> = ({
@@ -13,6 +14,7 @@ export const  ChatBot: React.FC<{
     const {client} = useClient()
     const { sendMessage } = useSendMessage();
     const divRef = useRef(null);
+    const chainId = useChainId()
 
     
 
@@ -35,9 +37,21 @@ export const  ChatBot: React.FC<{
   const handleKeyDown  = async(event) =>{
     if(event.key ==="Enter")
     {
-        const _data = document.getElementById("textInput").value 
+        let _data = document.getElementById("textInput").value
+        if(_data.includes("/finalize"))
+        {
+        
+          if(chainId==11155420)
+            _data = "/finalize 1"
+
+          if(chainId==696969)
+            _data = "/finalize 2" 
+        } 
+
         if(_data.length > 0)
         {
+
+          
           await sendMessage(conversation,_data)
           document.getElementById("textInput").value = ""
 

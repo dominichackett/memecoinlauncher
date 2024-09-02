@@ -73,51 +73,9 @@ interface Props {
 function MessageCard({ content,contentId,typeId,sender,userAddress,topic }: Props) {
     const signer = useEthersSigner()
     const {sendTransaction} = useSendTransaction({})
-console.log(userAddress)
- // @TODO: replace with your farcaster signer
- /*const farcasterSigner: FarcasterSigner = {
-    fid: 1,
-    status: "approved",
-    publicKey:
-      "0x00000000000000000000000000000000000000000000000000000000000000000",
-    privateKey:
-      "0x00000000000000000000000000000000000000000000000000000000000000000",
-  };
-  
-  const frameState = useFrame({
-    // replace with frame URL
-    homeframeUrl:
-      "https://my-frames-rouge.vercel.app/frames",
-    // corresponds to the name of the route for POST and GET in step 2
-    frameActionProxy: "/api/frames",
-    frameGetProxy: "/api/frames",
-    connectedAddress: undefined,
-    frameContext: fallbackFrameContext,
-    // map to your identity if you have one
-    signerState: {
-      hasSigner:
-        true,
-      signer: signer,
-      isLoadingSigner: false,
-      onSignerlessFramePress: () => {
-        // Only run if `hasSigner` is set to `false`
-        // This is a good place to throw an error or prompt the user to login
-        console.log(
-          "A frame button was pressed without a signer. Perhaps you want to prompt a login"
-        );
-      },
-      signFrameAction,
-      logout() {
-        // here you can add your logout logic
-        console.log("logout");
-      },
-    },
-  });
- */
-
 
   const transact = async(hash)=>{
-    console.log(hash)
+  
 
     sendTransaction({to:hash.transactionData.params.to ,data:hash.transactionData.params.data})
     return hash
@@ -133,8 +91,9 @@ console.log(userAddress)
     // You can implement your own storage that implements the Storage interface from @frames.js/render/identity/types.
     // storage: new WebStorage(),
   });
+  
   const frameState = useFrame({
-    homeframeUrl: "https://my-frames-rouge.vercel.app/frames", // url to frame
+    homeframeUrl: content, // url to frame
     frameActionProxy: "/api/frames",
     frameGetProxy: "/api/frames",
     frameContext: xmtpFrameContext.frameContext,
@@ -143,9 +102,11 @@ console.log(userAddress)
     specification: "openframes",
     onTransaction:transact
   });
- 
 
-if(content=="https://my-frames-rouge.vercel.app/frames")
+if(content.includes("https://memebotframes.vercel.app/frames"))
+{
+  console.log(content)
+  
   return (
     <div
     key={contentId}
@@ -160,7 +121,7 @@ if(content=="https://my-frames-rouge.vercel.app/frames")
     <FrameUI frameState={frameState} components={components} theme={theme} />
     </div></div>
   );
-  
+} 
   if(content.indexOf("<image/>") == 0)
     return (
   
