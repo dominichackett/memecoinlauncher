@@ -5,10 +5,11 @@ import styles from '../../styles/Home.module.css';
 import {useState, useEffect,useCallback } from 'react'; 
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header';
-
+import { getCoin } from '../../envio/envio';
 import { InlineIcon  } from '@iconify/react';
 import { useRouter } from 'next/router'
 import MessageSubscribers from '../../components/MessageSubscribers/MessageSubscribers';
+import { useSearchParams } from "next/navigation";
 
 const iconsize='64px'
 const token = 
@@ -31,10 +32,30 @@ const token =
   }]
 const Home: NextPage = () => {
     const router = useRouter()
-console.log(router.query.id)
+    const { id } = router.query;
+
+console.log(id)
  const deployToken =  (token:any)=>{
     
  }  
+
+ const [token,setToken] = useState()
+ useEffect(()=>{
+  async function _getCoin()
+  {
+      const coins = await getCoin(id)
+      let data = coins.data.TokenLauncher_TokenCreated
+      let _tokens = []
+      console.log(coins)
+      if(data.length > 0)
+      setToken({...data[0],decimals:18})
+
+  } 
+
+  if(id)
+    _getCoin()
+
+},[id])
 return (
     <div className={styles.container}>
       <Head>
@@ -47,14 +68,14 @@ return (
       </Head>
         <Header />
         <main className="mt-40" >
-       <div className=' flex flex-col items-center justify-center text-black hover:text-gray-500'>                          <img alt="" src={token.image} className="h-24 w-24 rounded-full" />
+       <div className=' flex flex-col items-center justify-center text-black hover:text-gray-500'>                          <img alt="" src={token?.image ? token.image : "/images/memecoin.jpg"} className="h-24 w-24 rounded-full border-2 border-gray-400" />
 
-        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" > {token.symbol} - {token.name}</h1>
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" > {token?.symbol} - {token?.name}</h1>
        <div className='mt-2  flex flex-row'> <span className='mt-2 font-medium'>Decimals:</span><span className="ml-2 inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-lg font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        {token.decimals}
+                        {token?.decimals}
                       </span></div>
                       <div className='mt-2  flex flex-row'>   <span className='mt-2 font-medium'>Address:</span><span className="ml-2 inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-lg font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        {token.address}
+                        {token?.token}
                       </span></div>
 
                       <div className='mt-2  flex flex-row '> 

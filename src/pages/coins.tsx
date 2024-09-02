@@ -21,7 +21,7 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
         <Header />
-        <main className="mt-20 grid lg:grid-cols-4  gap-y-12 place-items-center pt-16 pb-16 md:pt-12 md:pb-24" >
+        <main className="mt-20 grid lg:grid-cols-3  gap-y-12 place-items-center pt-16 pb-16 md:pt-12 md:pb-24" >
         {tokens.map((token,index)=>
         <CoinCard />
     )}

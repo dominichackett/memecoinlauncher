@@ -5,10 +5,10 @@ import styles from '../styles/Home.module.css';
 import {useState, useEffect,useCallback } from 'react'; 
 import Footer from '../components/Footer/Footer'
 import Header from '../components/Header/Header';
-import ChatBot from '../components/ChatBot/ChatBot'
 import { InlineIcon  } from '@iconify/react';
 import { useRouter } from 'next/navigation'
-
+import { getMyCoins } from '../envio/envio';
+import { useAccount } from 'wagmi';
 const iconsize='64px'
 const tokens = [
     {
@@ -23,9 +23,31 @@ const tokens = [
   ]
 const Home: NextPage = () => {
 const router = useRouter() 
+const account = useAccount()
+const [tokens,setTokens] = useState([])
  const viewToken =  (token:any)=>{
       router.push(`/viewtoken/${token}`)
  }  
+
+ useEffect(()=>{
+    async function getCoins()
+    {
+        const coins = await getMyCoins(account?.address)
+        let data = coins.data.TokenLauncher_TokenCreated
+        let _tokens = []
+        console.log(coins)
+        for(const index in data)
+        {
+           _tokens.push({...data[index],decimals:18})
+        }
+        setTokens(_tokens)
+
+    } 
+
+    if(account?.address)
+      getCoins()
+
+ },[account?.address])
 return (
     <div className={styles.container}>
       <Head>
@@ -67,11 +89,11 @@ return (
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {tokens.map((token) => (
-                  <tr key={token.address}>
+                  <tr key={token.id}>
                     <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">
                         <div className="h-11 w-11 flex-shrink-0">
-                          <img alt="" src={token.image} className="h-11 w-11 rounded-full" />
+                          <img alt="" src={token.image} className="h-11 w-11 rounded-full border-2 border-gray-400" />
                         </div>
                         <div className="ml-4">
                           <div className="font-medium text-gray-900">{token.symbol}</div>
@@ -86,9 +108,9 @@ return (
                         {token.decimals}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{token.address}</td>
+                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{token.token}</td>
                     <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      < button onClick={()=>viewToken(token.address)} className="rounded text-center transition focus-visible:ring-2 ring-offset-2 ring-gray-200 px-5 py-2.5 bg-black text-white hover:bg-gray-800  border-2 border-transparent flex gap-1 items-center justify-center">
+                      < button onClick={()=>viewToken(token.token)} className="rounded text-center transition focus-visible:ring-2 ring-offset-2 ring-gray-200 px-5 py-2.5 bg-black text-white hover:bg-gray-800  border-2 border-transparent flex gap-1 items-center justify-center">
                         View<span className="sr-only">, {token.symbol}</span>
                       </button>
                     </td>

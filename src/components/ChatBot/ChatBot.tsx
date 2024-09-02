@@ -3,7 +3,6 @@ import { useMessages, useStreamMessages ,  useClient,useSendMessage
 import type { CachedConversation, DecodedMessage } from "@xmtp/react-sdk";
 import {useRef, useCallback, useEffect, useState } from "react";
  import MessageCard from "../MessageCard/MessageCard";
- import { Address } from "viem";
  import {useChainId} from 'wagmi'
 export const  ChatBot: React.FC<{
     conversation: CachedConversation ;
