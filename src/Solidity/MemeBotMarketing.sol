@@ -164,7 +164,7 @@ contract MemeBotMarketing {
 
     }
 
-       function videobotsessions(string memory prompt,uint botsessionId)  public {
+       function image(string memory prompt,uint botsessionId)  public {
           require(msg.sender == botAddress,"Unauthorized sender or bot address");
            IOracle(oracleAddress).createFunctionCall(
                 botsessionId,

@@ -161,6 +161,29 @@ if(content=="https://my-frames-rouge.vercel.app/frames")
     </div></div>
   );
   
+  if(content.indexOf("<image/>") == 0)
+    return (
+  
+      <div
+      key={contentId}
+      className="mt-4 w-full relative flex flex-col rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+    >
+      <div className="flex items-start space-x-3">
+      <img
+          src={"/images/memecoin.jpg"} // URL of the sender's profile picture
+          alt={"Meme Bot"}
+          className="w-10 h-10 rounded-full"
+        />
+        <div className="flex flex-col">
+        <p className="text-sm font-medium text-gray-900">Meme Bot</p>
+     
+       <p className="flex items-center text-sm font-medium text-gray-900"><img className="h-[300px] rounded-full border-8 border-gray-400" src={content.replace("<image/>","")}/></p>
+      </div>
+      </div>
+      </div>
+  
+    );
+  
   if(typeId == "text")
   return (
     <div
@@ -184,28 +207,6 @@ if(content=="https://my-frames-rouge.vercel.app/frames")
 
   );
 
-  if(typeId == "image")
-  return (
-
-    <div
-    key={contentId}
-    className="mt-4 w-full relative flex flex-col rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
-  >
-    <div className="flex items-start space-x-3">
-    <img
-        src={"/images/memecoin.jpg"} // URL of the sender's profile picture
-        alt={"Meme Bot"}
-        className="w-10 h-10 rounded-full"
-      />
-      <div className="flex flex-col">
-      <p className="text-sm font-medium text-gray-900">Meme Bot</p>
-   
-     <p className="text-sm font-medium text-gray-900"><img src={content}/></p>
-    </div>
-    </div>
-    </div>
-
-  );
 
   if(typeId != "text")
     return (
