@@ -7,6 +7,25 @@ import { useEthersSigner } from '../../signers/signers';
 import { useAccount } from 'wagmi';
 import Notification from '../Notification/Notification';
 import { getDeployedTokens } from '../../envio/envio';
+import {BigNumberish, BytesLike} from 'ethers';
+import {EndpointId} from '@layerzerolabs/lz-definitions';
+import {Options} from '@layerzerolabs/lz-v2-utilities';
+
+interface Args {
+  amount: string;
+  to: string;
+  toEid: EndpointId;
+}
+
+interface SendParam {
+  dstEid: EndpointId; // Destination endpoint ID, represented as a number.
+  to: BytesLike; // Recipient address, represented as bytes.
+  amountLD: BigNumberish; // Amount to send in local decimals.
+  minAmountLD: BigNumberish; // Minimum amount to send in local decimals.
+  extraOptions: BytesLike; // Additional options supplied by the caller to be used in the LayerZero message.
+  composeMsg: BytesLike; // The composed message for the send() operation.
+  oftCmd: BytesLike; // The OFT command to be executed, unused in default OFT implementations.
+}
 const TokenBridge = () => {
 
   const [tokens,setTokens] = useState([])
@@ -52,8 +71,9 @@ const TokenBridge = () => {
  },[]) 
  
   const [amount, setAmount] = useState('');
-  const [fromChain, setFromChain] = useState('Ethereum');
-  const [toChain, setToChain] = useState('Binance Smart Chain');
+  const [fromChain, setFromChain] = useState();
+  const [toChain, setToChain] = useState(421614);
+  const [dToken,setDToken] = useState()
   const [token, setToken] = useState();
   const [balance, setBalance] = useState(null);
   const [tokenBalance,setTokenBalance] = useState(0)
@@ -76,6 +96,7 @@ setShow(false);
     if(chainId !="11155420") //Optimism
     {
       tokenAddress = deployedTokens.get(`${chainId}-${tokenAddress}`) || ethers.ZeroAddress   
+      setDToken(tokenAddress)
       if(tokenAddress == ethers.ZeroAddress)
       {
          setDialogType(2) //Error
@@ -83,7 +104,21 @@ setShow(false);
          setNotificationDescription("Token not deployed to connected chain")
          setShow(true)
          return
-      }   
+      }  
+    }else{
+      
+      console.log(`${toChain}-${tokenAddress}`) 
+      const _dtoken = deployedTokens.get(`${toChain}-${tokenAddress}`) || ethers.ZeroAddress   
+      setDToken(_dtoken)
+      if(_dtoken == ethers.ZeroAddress)
+      {
+         setDialogType(2) //Error
+         setNotificationTitle("Bridge Token")
+         setNotificationDescription("Token not deployed to connected chain")
+         setShow(true)
+         return
+      }  
+
     }
 
     const tokenContract = new ethers.Contract(tokenAddress,OFTABI,signer)
@@ -113,7 +148,14 @@ setShow(false);
       _getBalance()
   }, [token]);
 
-  const handleBridge = () => {
+  const handleBridge = async() => {
+    
+    if(dToken == ethers.ZeroAddress || dToken == undefined) //Token not deployed cross chain
+    {
+      console.log("Error with dToken")
+      return
+    }
+    
     if(isNaN(parseFloat(amount)) || amount <=0 )
     {
        setDialogType(2) //Error
@@ -142,6 +184,68 @@ setShow(false);
            setShow(true)
            return
         } 
+        
+        let dstToken = (chainId == "11155420" ? dToken :tokens[token].token)
+        let srcToken =  (chainId == "11155420" ? tokens[token].token:dToken)
+        console.log(srcToken)
+        const tokenContract = new ethers.Contract(srcToken,OFTABI,signer)
+        const decimals = await tokenContract.decimals();
+
+        const _amount = ethers.parseUnits(amount, decimals);
+        const selectElement = document.getElementById("toChain");
+
+        // Get the selected option
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+       // Retrieve the data-key attribute from the selected option
+       const _eid = selectedOption.getAttribute("data-eid");
+
+       let options = Options.newOptions().addExecutorLzReceiveOption(65000, 0).toBytes();
+
+        const sendParam: SendParam = {
+          dstEid: _eid,
+          to: ethers.zeroPadValue(account.address,32),
+          amountLD: _amount,
+          minAmountLD: _amount,
+          extraOptions: options,
+          composeMsg: ethers.getBytes('0x'), // Assuming no composed message
+          oftCmd: ethers.getBytes('0x'), // Assuming no OFT command is needed
+        };
+
+        // Get the quote for the send operation
+    const feeQuote = await tokenContract.quoteSend(sendParam, false);
+    const nativeFee = feeQuote.nativeFee;
+
+    console.log(
+      `sending ${_amount} token(s) to network  (${_eid}) ${ethers.formatEther(nativeFee)}`,
+    );
+
+    try {
+      setDialogType(3) //Information
+      setNotificationTitle("Bridge Token")
+      setNotificationDescription("Sending Tokens.")
+      setShow(true)
+ 
+      const r = await tokenContract.send(sendParam, {nativeFee: nativeFee, lzTokenFee: 0}, account.address, {
+        value: nativeFee,
+      });
+       await r.wait()
+       setDialogType(1) //Success
+       setNotificationTitle("Bridge Token")
+       setNotificationDescription("Transaction successfully submitted.")
+       setShow(true)
+  
+    }catch(error)
+    {
+
+      setDialogType(2) //Error
+      setNotificationTitle("Bridge Token");
+      setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
+      setShow(true)
+      console.log(error)
+
+    }
+
   };
 
   return (
@@ -212,8 +316,8 @@ setShow(false);
             onChange={(e) => setToChain(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-             <option value={421614}>Arbitrum</option>
-             <option value={11155420}>Optimism</option>
+             <option  data-eid="40231"  value={421614}>Arbitrum</option>
+             <option  data-eid="40232"   value={11155420}>Optimism</option>
             {/* Add more options as needed */}
           </select>
         </div>

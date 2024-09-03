@@ -13,6 +13,8 @@
     "@frames.js/render": "^0.3.4",
     "@headlessui/react": "^2.1.3",
     "@heroicons/react": "^2.1.5",
+    "@layerzerolabs/lz-definitions": "^2.3.40",
+    "@layerzerolabs/lz-v2-utilities": "^2.3.40",
     "@rainbow-me/rainbowkit": "^2.1.5",
     "@tailwindcss/typography": "^0.5.14",
     "@tanstack/react-query": "^5.51.11",
