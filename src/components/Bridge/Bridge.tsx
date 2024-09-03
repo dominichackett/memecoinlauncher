@@ -1,42 +1,147 @@
 import React, { useState, useEffect } from 'react';
-
+import { getCoins } from '../../envio/envio';
+import { OFTABI } from '../../contracts';
+import { useBalance, useChainId } from 'wagmi';
+import { ethers } from 'ethers';
+import { useEthersSigner } from '../../signers/signers';
+import { useAccount } from 'wagmi';
+import Notification from '../Notification/Notification';
+import { getDeployedTokens } from '../../envio/envio';
 const TokenBridge = () => {
+
+  const [tokens,setTokens] = useState([])
+  const chainId = useChainId()
+  const signer = useEthersSigner()
+  const account = useAccount()
+  const [deployedTokens,setDeployedTokens] = useState(new Map())
+  useEffect(()=>{
+
+   
+    async function _getDeployedTokens(){
+      const _tokens = await getDeployedTokens();
+      let data = _tokens.data.TokenLauncher_TokenDeployed
+      let chainMap = new Map()
+       for(const index in data){
+        chainMap.set(`${data[index].chain}-${data[index].token}`,data[index].peer);
+      }
+      
+      console.log(data)
+  
+      
+      setDeployedTokens(chainMap)
+      
+    } 
+    async function _getCoins()
+    {
+        const coins = await getCoins()
+        let data = coins.data.TokenLauncher_TokenCreated
+        let _tokens = []
+        console.log(coins)
+        for(const index in data)
+        {
+           _tokens.push({...data[index],decimals:18})
+        }
+        setTokens(_tokens)
+        
+
+    } 
+
+      _getDeployedTokens()
+      _getCoins()
+
+ },[]) 
+ 
   const [amount, setAmount] = useState('');
   const [fromChain, setFromChain] = useState('Ethereum');
   const [toChain, setToChain] = useState('Binance Smart Chain');
-  const [token, setToken] = useState('ETH');
+  const [token, setToken] = useState();
   const [balance, setBalance] = useState(null);
+  const [tokenBalance,setTokenBalance] = useState(0)
+  // NOTIFICATIONS functions
+  const [notificationTitle, setNotificationTitle] = useState();
+  const [notificationDescription, setNotificationDescription] = useState();
+  const [dialogType, setDialogType] = useState(1);
+  const [show, setShow] = useState(false);
+  const close = async () => {
+setShow(false);
+};
 
-  const tokens = [
-    { symbol: 'ETH', name: 'Ethereum' },
-    { symbol: 'BNB', name: 'Binance Coin' },
-    { symbol: 'USDT', name: 'Tether' },
-    { symbol: 'DAI', name: 'Dai' },
-    { symbol: 'MATIC', name: 'Polygon' },
-  ];
+ 
 
-  // Simulate fetching the user's token balance
-  const simulateBalance = (token) => {
-    // Simulate different balances based on the token
-    const balances = {
-      ETH: (Math.random() * 10).toFixed(2),
-      BNB: (Math.random() * 100).toFixed(2),
-      USDT: (Math.random() * 1000).toFixed(2),
-      DAI: (Math.random() * 1000).toFixed(2),
-      MATIC: (Math.random() * 500).toFixed(2),
-    };
-    return balances[token] || '0.00';
+  const getBalance = async(token) => {
+   
+    if(!token)
+      return
+    let tokenAddress = tokens[token].token
+    if(chainId !="11155420") //Optimism
+    {
+      tokenAddress = deployedTokens.get(`${chainId}-${tokenAddress}`) || ethers.ZeroAddress   
+      if(tokenAddress == ethers.ZeroAddress)
+      {
+         setDialogType(2) //Error
+         setNotificationTitle("Bridge Token")
+         setNotificationDescription("Token not deployed to connected chain")
+         setShow(true)
+         return
+      }   
+    }
+
+    const tokenContract = new ethers.Contract(tokenAddress,OFTABI,signer)
+    const _balance = await tokenContract.balanceOf(account.address)
+   
+    return ethers.formatEther(_balance) || '0.00';
   };
 
   useEffect(() => {
-    // Simulate fetching the balance when the token changes
-    const userBalance = simulateBalance(token);
-    setBalance(userBalance);
+    async function _getBalance()
+    {
+      const userBalance = await getBalance(token);
+      let balanceNumber = parseFloat(userBalance);
+      let formattedBalance 
+      // If the balance is greater than the threshold, use scientific notation
+      if (balanceNumber >= 1e18) {
+          formattedBalance = balanceNumber.toExponential(18); // 3 significant digits
+      } else {
+          // Otherwise, format the balance with commas and a few decimal places
+          formattedBalance = balanceNumber.toLocaleString('en-US', { maximumFractionDigits: 6 });
+      }
+      setBalance(formattedBalance);
+      setTokenBalance(userBalance)
+    }
+    console.log(token)
+    if(token)
+      _getBalance()
   }, [token]);
 
   const handleBridge = () => {
-    console.log(`Bridging ${amount} ${token} from ${fromChain} to ${toChain}`);
-    // Add your bridging logic here
+    if(isNaN(parseFloat(amount)) || amount <=0 )
+    {
+       setDialogType(2) //Error
+       setNotificationTitle("Bridge Token")
+       setNotificationDescription("Please enter an amount.")
+       setShow(true)
+       return
+    }  
+      console.log(tokenBalance)
+      console.log(amount)
+    if( parseFloat(amount) > parseFloat(tokenBalance) )
+      {
+         setDialogType(2) //Error
+         setNotificationTitle("Bridge Token")
+         setNotificationDescription("Insufficent Balance to transfer.")
+         setShow(true)
+         return
+      }  
+  
+
+      if(toChain == chainId )
+        {
+           setDialogType(2) //Error
+           setNotificationTitle("Bridge Token")
+           setNotificationDescription("Can't transfer to the same chain.")
+           setShow(true)
+           return
+        } 
   };
 
   return (
@@ -50,12 +155,13 @@ const TokenBridge = () => {
           <select
             id="token"
             value={token}
+            
             onChange={(e) => setToken(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            {tokens.map((token) => (
-              <option key={token.symbol} value={token.symbol}>
-                {token.name} ({token.symbol})
+            {tokens.map((_token,index) => (
+              <option key={_token._symbol} value={index}>
+                {_token.name} ({_token.symbol})
               </option>
             ))}
           </select>
@@ -63,7 +169,7 @@ const TokenBridge = () => {
 
         {/* Display Balance */}
         <div className="mb-4">
-          <p className="text-gray-700">Balance: {balance} {token}</p>
+          <p className="text-gray-700">Balance: {balance} {token ? tokens[token]?.symbol: ""}</p>
         </div>
 
         {/* Token Amount Input */}
@@ -73,6 +179,7 @@ const TokenBridge = () => {
             id="amount"
             type="number"
             value={amount}
+            min={0}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter token amount"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
@@ -84,13 +191,14 @@ const TokenBridge = () => {
           <label className="block text-gray-700 mb-2" htmlFor="fromChain">From</label>
           <select
             id="fromChain"
-            value={fromChain}
+            disabled={true}
+
+            value={chainId}
             onChange={(e) => setFromChain(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            <option>Ethereum</option>
-            <option>Binance Smart Chain</option>
-            <option>Polygon</option>
+            <option value={421614}>Arbitrum</option>
+            <option value={11155420}>Optimism</option>
             {/* Add more options as needed */}
           </select>
         </div>
@@ -104,9 +212,8 @@ const TokenBridge = () => {
             onChange={(e) => setToChain(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            <option>Binance Smart Chain</option>
-            <option>Ethereum</option>
-            <option>Polygon</option>
+             <option value={421614}>Arbitrum</option>
+             <option value={11155420}>Optimism</option>
             {/* Add more options as needed */}
           </select>
         </div>
@@ -119,6 +226,13 @@ const TokenBridge = () => {
           Bridge Tokens
         </button>
       </div>
+      <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
     </div>
   );
 };

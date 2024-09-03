@@ -121,3 +121,33 @@ export const getCoins = async()=>
                    
                 }  
         
+
+export const getDeployedTokens = async()=>
+                  {  
+                       
+                   
+              
+                       const response = await fetch("/api/getdeployedtokens", {
+                          method: "POST",
+                          
+                          headers: {
+                            "Content-Type": "application/json"
+                          }
+                        });
+                  
+                        if (!response.ok) {
+                          throw new Error('Network response was not ok');
+                        }
+                  
+                        const responseData = await response.json();
+                       
+                      
+                       
+                   
+                  
+                   
+                    
+                   
+                       return responseData
+                     
+                  }                  

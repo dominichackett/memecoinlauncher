@@ -65,13 +65,17 @@ const _lz = selectedOption.getAttribute("data-lz");
 
     const tokenContract = new ethers.Contract(token.token,OFTABI,signer);
     const launcherContract = new ethers.Contract(opContractAddress,ContractABI,signer)
-
+    console.log(ethers.zeroPadValue(token.token,32))
+    console.log(await tokenContract.isPeer(_eid,ethers.zeroPadValue("0xD26d98b8CdD5aC7Bd6174a2Cb3E9646714E29C26",32)))
+//    return
     try{
+
+
       setDialogType(3) //Information
       setNotificationDescription("Deploying Token")
       setNotificationTitle("Deploy Token")
       setShow(true)  
-          const oft = await deployToken(token,account.address,_lz)
+          const oft = await deployToken(token,_lz)
           console.log(oft)
       
           setDialogType(3) //Information
@@ -101,10 +105,10 @@ const _lz = selectedOption.getAttribute("data-lz");
 
     }catch(error)
     {
-     /* setDialogType(2) //Error
-      setNotificationTitle("Create Portal");
+     setDialogType(2) //Error
+      setNotificationTitle("Deploy Token");
       setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
-      setShow(true)*/
+      setShow(true)
       console.log(error)
     }
  }  
@@ -119,13 +123,15 @@ const _lz = selectedOption.getAttribute("data-lz");
     let _deployed = []
     for(const index in data){
       chainMap.set(data[index].chain,data[index].peer);
-      _deployed.push({...data[index],image:"/images/chains/arbitrum.jpg",name:{arbitrum}})
+      _deployed.push({...data[index],image:"/images/chains/arbitrum.png",name:"arbitrum"})
     }
+    console.log(data)
 
     _deployed.push({
       id:11155420,
       eid:40231,
       name: 'Optimism',
+      peer:token.token,
        image:
         '/images/chains/optimism.png',
     })
@@ -210,6 +216,7 @@ return (
                           <img alt="" src={chain.image} className="h-11 w-11 rounded-full" />
                         </div>
                         <div className="ml-2 text-gray-900">{chain.name}</div>
+                        <div className="ml-2 text-gray-900">{chain.peer}</div>
 
                       </div>
                     </td>

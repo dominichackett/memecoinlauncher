@@ -4,14 +4,14 @@ import { OFTABI,OFTBYTECODE } from "./contracts";
  const privateKey = process.env.NEXT_PUBLIC_KEY;
 
  let wallet = new ethers.Wallet(privateKey as string)
-
+console.log(wallet.address)
  const provider = new ethers.JsonRpcProvider(
 "https://arbitrum-sepolia.blockpi.network/v1/rpc/public "  );
  let signer = wallet.connect(provider);
 
-  export const  deployToken=async(token:any,_delgate:string,_lz:string)=>{
+  export const  deployToken=async(token:any,_lz:string)=>{
     const contractFactory = new ethers.ContractFactory(OFTABI, OFTBYTECODE, signer);
-    const contract = await contractFactory.deploy(token.name,token.symbol,_lz,_delgate);
+    const contract = await contractFactory.deploy(token.name,token.symbol,_lz,wallet.address);
    const x= await contract.waitForDeployment()
    console.log(x)
     const tx =  contract.deploymentTransaction()?.wait();
