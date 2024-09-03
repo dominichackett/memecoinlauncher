@@ -1,46 +1,138 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../../styles/Home.module.css';
-import {useState, useEffect,useCallback } from 'react'; 
+import {useState, useEffect } from 'react'; 
 import Footer from '../../components/Footer/Footer'
 import Header from '../../components/Header/Header';
 import { getCoin } from '../../envio/envio';
-import { InlineIcon  } from '@iconify/react';
 import { useRouter } from 'next/router'
 import MessageSubscribers from '../../components/MessageSubscribers/MessageSubscribers';
-import { useSearchParams } from "next/navigation";
+import { OFTABI,OFTBYTECODE } from '../../contracts';
+import { getDeployedChains } from '../../envio/envio';
+import Notification from '../../components/Notification/Notification'
+import { arbitrum } from 'viem/chains';
+import { useEthersSigner } from '../../signers/signers'
+import { ethers } from 'ethers';
+import { useAccount } from 'wagmi';
+import { deployToken,setTokenPeer } from '../../deploy';
+import { ContractABI,opContractAddress } from "../../contracts";
 
-const iconsize='64px'
-const token = 
-    {
-      name: 'Lindsay Walton',
-      symbol: 'LWT',
-      decimals:18,
-      address:"0x00000000000000000000000000000001",
-      image:
-        'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    }
-    // More people...
-  
-
-  const deployedChains = [{
-    id:10,
-    name: 'Optimism',
-     image:
-      '/images/chains/optimism.png',
-  }]
 const Home: NextPage = () => {
     const router = useRouter()
     const { id } = router.query;
+    const [gotDeloyedChains,setGotDeployedChains] = useState()
+    const [isDeployed,setisDeployed] = useState(new Map())
+    const [deployedChains,setDeployedChains] = useState([])
+    const signer = useEthersSigner()
+    const account = useAccount()
+     // NOTIFICATIONS functions
+  const [notificationTitle, setNotificationTitle] = useState();
+  const [notificationDescription, setNotificationDescription] = useState();
+  const [dialogType, setDialogType] = useState(1);
+  const [show, setShow] = useState(false);
+  const close = async () => {
+setShow(false);
+};
 
-console.log(id)
- const deployToken =  (token:any)=>{
+ const _deployToken =  async()=>{
+     
+    if(!gotDeloyedChains)
+      return 
+
+    const _chain = document.getElementById("deploy").value
+    // Get the select element
+const selectElement = document.getElementById("deploy");
+
+// Get the selected option
+const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+// Retrieve the data-key attribute from the selected option
+const _eid = selectedOption.getAttribute("data-eid");
+const _lz = selectedOption.getAttribute("data-lz");
     
+
+
+    if(isDeployed.get(_chain))
+    {
+       setDialogType(2) //Error
+       setNotificationDescription("Token already deployed to this chain")
+       setNotificationTitle("Deploy Token")
+       setShow(true)
+       console.log(_chain)
+       console.log(_eid)
+       return
+    }  
+
+    const tokenContract = new ethers.Contract(token.token,OFTABI,signer);
+    const launcherContract = new ethers.Contract(opContractAddress,ContractABI,signer)
+
+    try{
+      setDialogType(3) //Information
+      setNotificationDescription("Deploying Token")
+      setNotificationTitle("Deploy Token")
+      setShow(true)  
+          const oft = await deployToken(token,account.address,_lz)
+          console.log(oft)
+      
+          setDialogType(3) //Information
+          setNotificationDescription("Setting Token Peer Origin")
+          setNotificationTitle("Deploy Token")
+          setShow(true) 
+
+          const tx = await tokenContract.setPeer(_eid,ethers.zeroPadValue(oft?.contractAddress,32))
+          await tx.wait()
+          
+
+          setDialogType(3) //Information
+          setNotificationDescription("Setting Token Peer Destination")
+          setNotificationTitle("Deploy Token")
+          setShow(true)  
+
+          await setTokenPeer(token,oft?.contractAddress);
+
+
+
+          const tx1 = await launcherContract.registerCrossChain(token.token,oft?.contractAddress,_chain)
+          await tx1.wait();
+          setDialogType(1) //Success
+          setNotificationDescription("Successfully deployed token.")
+          setNotificationTitle("Deploy Token")
+          setShow(true)       
+
+    }catch(error)
+    {
+     /* setDialogType(2) //Error
+      setNotificationTitle("Create Portal");
+      setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
+      setShow(true)*/
+      console.log(error)
+    }
  }  
 
  const [token,setToken] = useState()
  useEffect(()=>{
+  
+  async function getChains(){
+    const _chains = await getDeployedChains(id);
+    let data = _chains.data.TokenLauncher_TokenDeployed
+    let chainMap = new Map()
+    let _deployed = []
+    for(const index in data){
+      chainMap.set(data[index].chain,data[index].peer);
+      _deployed.push({...data[index],image:"/images/chains/arbitrum.jpg",name:{arbitrum}})
+    }
+
+    _deployed.push({
+      id:11155420,
+      eid:40231,
+      name: 'Optimism',
+       image:
+        '/images/chains/optimism.png',
+    })
+    setDeployedChains(_deployed)
+    setisDeployed(chainMap)
+    setGotDeployedChains(true)
+  }
   async function _getCoin()
   {
       const coins = await getCoin(id)
@@ -53,7 +145,10 @@ console.log(id)
   } 
 
   if(id)
-    _getCoin()
+  {
+      _getCoin()
+      getChains()
+    }
 
 },[id])
 return (
@@ -79,13 +174,13 @@ return (
                       </span></div>
 
                       <div className='mt-2  flex flex-row '> 
-                      < button onClick={()=>deployToken()} className="ml-2 rounded text-center transition focus-visible:ring-2 ring-offset-2 ring-gray-200 px-5 py-2.5 bg-black text-white hover:bg-gray-800  border-2 border-transparent flex gap-1 items-center justify-center">
+                      < button onClick={()=>_deployToken()} className="ml-2 rounded text-center transition focus-visible:ring-2 ring-offset-2 ring-gray-200 px-5 py-2.5 bg-black text-white hover:bg-gray-800  border-2 border-transparent flex gap-1 items-center justify-center">
                         Deploy
                       </button>
-                      <span className='mt-2 font-medium'><select             className="ml-2 rounded-md border border-stroke bg-gray-100 py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-gray-100 focus:shadow-input"
+                      <span className='mt-2 font-medium'><select   id='deploy'          className="ml-2 rounded-md border border-stroke bg-gray-100 py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-gray-100 focus:shadow-input"
                       ><option>Select Chain</option>
-                      <option key="10" value="10">Arbitrum</option>
-                      <option key ="101" value="101">Optimism</option></select>
+                      <option key="40231" data-lz="0x6EDCE65403992e310A62460808c4b910D972f10f"  data-eid="40231" value="421614">Arbitrum</option>
+                      <option key ="101" data-key="101" value="101">Optimism</option></select>
                      </span> 
                         </div>
                       </div>
@@ -143,7 +238,13 @@ Send Message to Subscribers</h1>
   
        </main> 
        <Footer />
-
+       <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
 </div>
       );
 };
