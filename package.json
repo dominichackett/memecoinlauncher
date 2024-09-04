@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ethsign/sp-sdk": "^0.7.2",
     "@fontsource-variable/bricolage-grotesque": "^5.0.7",
     "@fontsource-variable/inter": "^5.0.20",
     "@frames.js/render": "^0.3.4",

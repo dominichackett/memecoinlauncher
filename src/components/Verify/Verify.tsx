@@ -1,25 +1,95 @@
 import React, { useState, useEffect } from 'react';
-
+import Notification from '../Notification/Notification';
+import { getCoins } from '../../envio/envio';
+import { ethers } from 'ethers';
+import { useEthersSigner } from '../../signers/signers';
+import { useAccount ,useChainId} from 'wagmi';
+import { createAttestation } from '../../../ethsign/ethsign';
 const VerifyToken = () => {
+  const [tokens,setTokens] = useState([])
+  const chainId = useChainId()
+  const signer = useEthersSigner()
+  const account = useAccount()
+
   const [amount, setAmount] = useState('');
-  const [fromChain, setFromChain] = useState('Ethereum');
-  const [toChain, setToChain] = useState('Binance Smart Chain');
-  const [token, setToken] = useState('ETH');
-  const [balance, setBalance] = useState(null);
+  const [publicTeam, setPublicTeam] = useState(1);
+  const [tokensLocked, setTokensLocked] = useState(1);
+  const [lockedPeriod,setLockedPeriod] = useState(1)
+  const [token, setToken] = useState();
 
-  const tokens = [
-    { symbol: 'ETH', name: 'Ethereum' },
-    { symbol: 'BNB', name: 'Binance Coin' },
-    { symbol: 'USDT', name: 'Tether' },
-    { symbol: 'DAI', name: 'Dai' },
-    { symbol: 'MATIC', name: 'Polygon' },
-  ];
+  // NOTIFICATIONS functions
+  const [notificationTitle, setNotificationTitle] = useState();
+  const [notificationDescription, setNotificationDescription] = useState();
+  const [dialogType, setDialogType] = useState(1);
+  const [show, setShow] = useState(false);
+  const close = async () => {
+setShow(false);
+};
 
-  
+
+  useEffect(()=>{
+
+   
+    async function _getCoins()
+    {
+        const coins = await getCoins()
+        let data = coins.data.TokenLauncher_TokenCreated
+        let _tokens = []
+        console.log(coins)
+        for(const index in data)
+        {
+           _tokens.push({...data[index],decimals:18})
+        }
+        if(data.length > 0 )
+          setToken(data[0].token)
+        setTokens(_tokens)
+        
+
+    } 
+
+      _getCoins()
+
+ },[]) 
  
-  const handleBridge = () => {
-    console.log(`Bridging ${amount} ${token} from ${fromChain} to ${toChain}`);
-    // Add your bridging logic here
+ 
+  const handleVerifyToken = async() => {
+    if(chainId !="11155420") //Optimism
+   {
+      setDialogType(2) //Error
+      setNotificationTitle("Verify Token")
+      setNotificationDescription("Wrong network. Please select optimism.")
+      setShow(true)
+      return
+   } 
+
+   if(token == undefined) //
+   {
+      setDialogType(2) //Error
+      setNotificationTitle("Verify Token")
+      setNotificationDescription("No token selected to verify.")
+      setShow(true)
+      return
+   }
+
+    console.log(`Token ${token} Team ${publicTeam}  Locked ${tokensLocked} Period ${lockedPeriod}`)
+    try{
+
+      setDialogType(3) //Information
+      setNotificationTitle("Verify Token")
+      setNotificationDescription("Creating attestation for verification.")
+      setShow(true)
+      await createAttestation(token,publicTeam,tokensLocked,lockedPeriod,signer);    
+      setDialogType(1) //Success
+      setNotificationTitle("Verify Token")
+      setNotificationDescription("Token successfully verified.")
+      setShow(true)
+       
+    }catch(error){
+      setDialogType(2) //Error
+      setNotificationTitle("Verify Token");
+      setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
+      setShow(true)
+    }
   };
 
   return (
@@ -39,7 +109,7 @@ const VerifyToken = () => {
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
             {tokens.map((token) => (
-              <option key={token.symbol} value={token.symbol}>
+              <option key={token.token} value={token.token}>
                 {token.name} ({token.symbol})
               </option>
             ))}
@@ -53,12 +123,12 @@ const VerifyToken = () => {
           <label className="block text-gray-700 mb-2" htmlFor="fromChain">Public Team</label>
           <select
             id="team"
-            value={fromChain}
-            onChange={(e) => setFromChain(e.target.value)}
+            value={publicTeam}
+            onChange={(e) => setPublicTeam(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            <option>Yes</option>
-            <option>No</option>
+            <option value={1}>No</option>
+            <option value={2}>Yes</option>
             {/* Add more options as needed */}
           </select>
         </div>
@@ -68,13 +138,13 @@ const VerifyToken = () => {
           <label className="block text-gray-700 mb-2" htmlFor="toChain">Tokens Locked</label>
           <select
             id="locked"
-            value={toChain}
-            onChange={(e) => setToChain(e.target.value)}
+            value={tokensLocked}
+            onChange={(e) => setTokensLocked(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            <option>30%</option>
-            <option>50%</option>
-            <option>70%</option>
+            <option value={1}>30%</option>
+            <option value={2}>50%</option>
+            <option value={3}>70%</option>
            
             {/* Add more options as needed */}
           </select>
@@ -84,13 +154,14 @@ const VerifyToken = () => {
           <label className="block text-gray-700 mb-2" htmlFor="toChain">Lock Period</label>
           <select
             id="lockedPeriod"
-            onChange={(e) => setToChain(e.target.value)}
+            value={lockedPeriod}
+            onChange={(e) => setLockedPeriod(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
-            <option>6 Months</option>
-            <option>1 Year</option>
-            <option>2 Years</option>
-            <option>3 Years</option>
+            <option value={1}>6 Months</option>
+            <option value={2}>1 Year</option>
+            <option value={3}>2 Years</option>
+            <option value={4}>3 Years</option>
 
            
             {/* Add more options as needed */}
@@ -98,12 +169,19 @@ const VerifyToken = () => {
         </div>
         {/* Bridge Button */}
         <button
-          onClick={handleBridge}
+          onClick={handleVerifyToken}
           className="w-full bg-black text-white hover:bg-gray-800 py-2 rounded-md transition-colors"
         >
           Verify Token
         </button>
       </div>
+      <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
     </div>
   );
 };
