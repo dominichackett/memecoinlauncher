@@ -59,11 +59,11 @@ contract Vault is ISPHook ,Ownable {
         uint256 requiredAmount;
 
         if (tokensLocked == 1) {
-            requiredAmount = (totalSupply * 30) / 100; // 30% of totalSupply
+            requiredAmount = (totalSupply /100) *30; // 30% of totalSupply
         } else if (tokensLocked == 2) {
-            requiredAmount = (totalSupply * 50) / 100; // 50% of totalSupply
+            requiredAmount = (totalSupply /100) * 50; // 50% of totalSupply
         } else if (tokensLocked == 3) {
-            requiredAmount = (totalSupply * 70) / 100; // 70% of totalSupply
+            requiredAmount = (totalSupply / 100) * 70; // 70% of totalSupply
         } else {
             return false; // Invalid tokensLocked value
         }
@@ -192,5 +192,11 @@ contract Vault is ISPHook ,Ownable {
 
                 _checkAttesterWhitelistStatus(attester);
 
+    }
+
+    function withDraw(address vault) public onlyOwner vaultExist(vault) {
+      require(tokenvaults[vault].amount > 0,"Vault is empty" );
+      IERC20(vault).transfer(msg.sender,tokenvaults[vault].amount);
+      tokenvaults[vault].amount=0;
     }
 }

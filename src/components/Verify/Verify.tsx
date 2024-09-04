@@ -89,6 +89,7 @@ setShow(false);
       setNotificationTitle("Verify Token");
       setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
       setShow(true)
+      
     }
   };
 

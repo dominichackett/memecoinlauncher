@@ -7,6 +7,7 @@ import Footer from '../components/Footer/Footer'
 import Header from '../components/Header/Header';
 import CoinCard from '../components/CoinCard/CoinCard';
 import { getCoins } from '../envio/envio';
+import { queryAttestation } from '../../ethsign/ethsign';
 const iconsize='64px'
 const Home: NextPage = () => {
   const [tokens,setTokens] = useState([])
@@ -19,7 +20,10 @@ const Home: NextPage = () => {
         console.log(coins)
         for(const index in data)
         {
-           _tokens.push({...data[index],decimals:18})
+          const at = await queryAttestation(data[index].token)
+          console.log(data[index].token)
+          console.log(at)
+           _tokens.push({...data[index],decimals:18,...at})
         }
         setTokens(_tokens)
 
