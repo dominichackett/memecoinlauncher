@@ -8,10 +8,30 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISP } from "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import {Attestation} from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
+  struct RegistrationParams {
+    string name;
+    bytes encryptedEmail;
+    address upkeepContract;
+    uint32 gasLimit;
+    address adminAddress;
+    uint8 triggerType;
+    bytes checkData;
+    bytes triggerConfig;
+    bytes offchainConfig;
+    uint96 amount;
+}
 
+interface AutomationRegistrarInterface {
+    function registerUpkeep(
+        RegistrationParams calldata requestParams
+    ) external returns (uint256);
+}
 // @dev This contract implements the actual schema hook.
-contract Vault is ISPHook ,Ownable {
-    
+contract Vault is ISPHook ,Ownable,AutomationCompatibleInterface  {
+    enum Mode { DEV, PROD } //Development mode needed for testing only
+    Mode public mode = Mode.DEV; 
     struct TokenVault{
         address token;
         address owner;
@@ -19,16 +39,22 @@ contract Vault is ISPHook ,Ownable {
         uint256 dateCreated;
         uint256 tokensLocked;
         uint256 lockPeriod;
+        uint256 upkeepId;
         bool isValid;  
     }
 
     ISP public spInstance; 
     mapping (address => TokenVault) public tokenvaults;
     mapping(address attester => bool allowed) public whitelist;
-    address public  vaultManager;
+    LinkTokenInterface public immutable i_link;
+    AutomationRegistrarInterface public immutable i_registrar;
+    event VaultUnlocked(address token,uint256 dateUnlocked,uint amount,address owner);
 
-    constructor (address _spInstance) Ownable(msg.sender){
+    constructor (address _spInstance, LinkTokenInterface link,
+        AutomationRegistrarInterface registrar) Ownable(msg.sender){
        spInstance =  ISP(_spInstance) ;
+        i_link = link;
+        i_registrar = registrar;
     }
 
       /**
@@ -71,9 +97,7 @@ contract Vault is ISPHook ,Ownable {
         return (amount >= requiredAmount);
     }
 
-  function setVaultManaager(address manager) public onlyOwner(){
-    vaultManager =manager;
-  }  
+  
 
    function verifyToken(address token,uint256 tokensLocked,uint256 lockPeriod) internal view vaultExist(token) {
        uint256 amount =  tokenvaults[token].amount;
@@ -83,14 +107,37 @@ contract Vault is ISPHook ,Ownable {
    }
 
    function createVault(address token,uint256 amount,uint256 tokensLocked,uint256 lockPeriod) public vaultDoesNotExist(token) {
+        require(i_link.balanceOf(address(this))> 0 ,"Insufficient Link Balance");
+
          require(tokensLocked >=1 && tokensLocked <=3,"Invalid Token Locked Percentage");
          require(lockPeriod >= 1 && lockPeriod <=4 ,"Invalid lock period");
          require(checkAmount(token, tokensLocked,  amount),"Invalid amount");
          require(IERC20(token).balanceOf(msg.sender)>= amount,"Insufficent amount");
          require(OFT(token).owner() == msg.sender,"Unauthorized you are not the owner of this token.");
-        TokenVault memory vault = TokenVault({token:token,owner:msg.sender,amount:amount,dateCreated:block.timestamp,tokensLocked:tokensLocked,lockPeriod:lockPeriod,isValid:true});
+    
+    RegistrationParams memory params= RegistrationParams({name:"Meme Coin Vault",encryptedEmail:"0x0",
+     upkeepContract:address(this),
+    gasLimit:500000,
+    adminAddress:msg.sender,
+    triggerType:0,
+    checkData:abi.encode(token),
+    triggerConfig:'0x',
+    offchainConfig:'0x',
+  amount:2000000000000000000});
+      
+        TokenVault memory vault = TokenVault({token:token,owner:msg.sender,amount:amount,dateCreated:block.timestamp,tokensLocked:tokensLocked,lockPeriod:lockPeriod,upkeepId:0,isValid:true});
         tokenvaults[token]=vault;
+    
         IERC20(token).transferFrom(msg.sender,address(this) ,amount);
+        i_link.approve(address(i_registrar), params.amount);
+    
+        uint256 upkeepId = i_registrar.registerUpkeep(params);
+        if (upkeepId != 0) {
+            // DEV - Use the upkeepID however you see fit
+            tokenvaults[token].upkeepId = upkeepId;
+        } else {
+            revert("Failed to Register Automation");
+        }
    }
 
     function canUnlock(uint256 dateCreated, uint256 option) public view returns (bool) {
@@ -113,15 +160,17 @@ contract Vault is ISPHook ,Ownable {
         return block.timestamp >= dateCreated + period;
     }
 
-   function unlockVault(address vault)  public vaultExist(vault){
+   function unlockVault(address vault)  internal vaultExist(vault){
     require(tokenvaults[vault].amount !=0,"Vault already unlocked");
-    require(msg.sender == vaultManager,"Unauthorized. You are not the vault manager");
-    require(canUnlock(tokenvaults[vault].dateCreated,tokenvaults[vault].lockPeriod),"Time has not passed. Vault cannot be unlocked");
+    require(canUnlock(tokenvaults[vault].dateCreated,tokenvaults[vault].lockPeriod )|| mode== Mode.DEV,"Time has not passed. Vault cannot be unlocked");
     IERC20(vault).transfer(tokenvaults[vault].owner,tokenvaults[vault].amount);
-    tokenvaults[vault].amount = 0; 
+    emit VaultUnlocked(vault,block.timestamp,tokenvaults[vault].amount,tokenvaults[vault].owner);
+    tokenvaults[vault].amount = 0;
+    
+ 
 }
 
-    function setSpIntance(address _spInstance) public onlyOwner{
+    function setSpInstance(address _spInstance) public onlyOwner{
          spInstance =  ISP(_spInstance) ;
    
     }
@@ -148,7 +197,7 @@ contract Vault is ISPHook ,Ownable {
         _checkAttesterWhitelistStatus(attester);
         Attestation memory at =   spInstance.getAttestation(attestationId);
          ( address token,  , uint256 tokensLocked, uint256 lockPeriod) = abi.decode(at.data, (address, uint256, uint256, uint256));
-
+          //Verify the correct amount of tokens are locked in contract to approve attestation 
           verifyToken( token,tokensLocked, lockPeriod);
     }
 
@@ -194,9 +243,42 @@ contract Vault is ISPHook ,Ownable {
 
     }
 
+    
+    //Only available for development and testing.
     function withDraw(address vault) public onlyOwner vaultExist(vault) {
       require(tokenvaults[vault].amount > 0,"Vault is empty" );
       IERC20(vault).transfer(msg.sender,tokenvaults[vault].amount);
       tokenvaults[vault].amount=0;
+    }
+
+    function checkUpkeep(
+        bytes calldata checkData 
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory  performData )
+    {
+        address tokenId = abi.decode(checkData,(address));
+        
+        //Check if we can unlock the vault
+        upkeepNeeded = (canUnlock(tokenvaults[tokenId].dateCreated,tokenvaults[tokenId].lockPeriod) && tokenvaults[tokenId].amount > 0 && mode == Mode.PROD) 
+        || (mode == Mode.DEV && tokenvaults[tokenId].amount > 0 && block.timestamp >= tokenvaults[tokenId].dateCreated + 10*15 ) ;
+        performData =abi.encode(tokenId);  
+        
+        }
+
+
+ function performUpkeep(bytes calldata performData ) external override {
+    address tokenId = abi.decode(performData, (address));
+    unlockVault(tokenId); 
+    }
+
+     function withdrawLink() public onlyOwner{
+        i_link.transfer(msg.sender, i_link.balanceOf(address(this)));
+    }
+
+    function setMode(Mode _mode) public onlyOwner {
+        mode = _mode;
     }
 }
