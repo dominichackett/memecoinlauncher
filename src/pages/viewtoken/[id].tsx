@@ -114,8 +114,8 @@ const _lz = selectedOption.getAttribute("data-lz");
  }  
 
  const [token,setToken] = useState()
+ 
  useEffect(()=>{
-  
   async function getChains(){
     const _chains = await getDeployedChains(id);
     let data = _chains.data.TokenLauncher_TokenDeployed
@@ -126,7 +126,7 @@ const _lz = selectedOption.getAttribute("data-lz");
       _deployed.push({...data[index],image:"/images/chains/arbitrum.png",name:"arbitrum"})
     }
     console.log(data)
-
+    console.log(token)
     _deployed.push({
       id:11155420,
       eid:40231,
@@ -138,7 +138,16 @@ const _lz = selectedOption.getAttribute("data-lz");
     setDeployedChains(_deployed)
     setisDeployed(chainMap)
     setGotDeployedChains(true)
-  }
+  }   
+
+  if(token)
+    getChains()
+ 
+
+ },[token])
+ useEffect(()=>{
+  
+  
   async function _getCoin()
   {
       const coins = await getCoin(id)
@@ -147,13 +156,12 @@ const _lz = selectedOption.getAttribute("data-lz");
       console.log(coins)
       if(data.length > 0)
       setToken({...data[0],decimals:18})
-
-  } 
+    } 
 
   if(id)
   {
       _getCoin()
-      getChains()
+      
     }
 
 },[id])
