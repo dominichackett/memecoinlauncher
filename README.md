@@ -14,7 +14,9 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 ## Required Repos
 [Meme Coin Launcher Indexer for Envio.dev](https://github.com/dominichackett/MemeCoinLauncherIndexer) - Smart Contract Indexing
+
 [Meme Coin Launcher Bot](https://github.com/dominichackett/memebot) - Meme Bot
+
 [Meme Coin Launcher Bot Frames](https://github.com/dominichackett/memebotframes) - Meme Bot Frames
 
 ## Learn More
