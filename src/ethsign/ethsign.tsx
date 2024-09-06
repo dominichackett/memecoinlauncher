@@ -4,8 +4,15 @@ import{
     EvmChains,IndexService
   } from "@ethsign/sp-sdk";
   import{ethers} from "ethers"
-  const schemaId = "0x11"
-  const fullSchemaId = "onchain_evm_11155420_0x11"
+
+ 
+  const schemaId = "0x15"
+  const fullSchemaId = "onchain_evm_11155420_0x15"
+//Schema details
+//https://testnet-scan.sign.global/schema/onchain_evm_11155420_0x15
+
+
+
   export const createAttestation = async(Token:string,PublicTeam:number,TokensLocked:number,LockPeriod:number,signer:any)=>{
  
   

@@ -4,7 +4,7 @@ import { getCoins } from '../../envio/envio';
 import { ethers } from 'ethers';
 import { useEthersSigner } from '../../signers/signers';
 import { useAccount ,useChainId} from 'wagmi';
-import { createAttestation } from '../../../ethsign/ethsign';
+import { createAttestation } from '../../ethsign/ethsign';
 const VerifyToken = ({setTokenImage}) => {
   const [tokens,setTokens] = useState([])
   const chainId = useChainId()

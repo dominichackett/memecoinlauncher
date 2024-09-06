@@ -7,7 +7,7 @@ import Footer from '../components/Footer/Footer'
 import Header from '../components/Header/Header';
 import CoinCard from '../components/CoinCard/CoinCard';
 import { getCoins } from '../envio/envio';
-import { queryAttestation } from '../../ethsign/ethsign';
+import { queryAttestation } from '../ethsign/ethsign';
 const iconsize='64px'
 const Home: NextPage = () => {
   const [tokens,setTokens] = useState([])
