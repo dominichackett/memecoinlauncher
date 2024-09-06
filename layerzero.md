@@ -12,9 +12,9 @@ https://github.com/dominichackett/memecoinlauncher/blob/586cb5f8fae27d396a2404dd
 
 
 ### Sending tokens cross chain
-https://github.com/dominichackett/memecoinlauncher/blob/74e7ec5b8520232623b354044aa73abfe5afd69f/src/components/Bridge/Bridge.tsx#L20
+https://github.com/dominichackett/memecoinlauncher/blob/74e7ec5b8520232623b354044aa73abfe5afd69f/src/components/Bridge/Bridge.tsx#L20-L28
 
-https://github.com/dominichackett/memecoinlauncher/blob/74e7ec5b8520232623b354044aa73abfe5afd69f/src/components/Bridge/Bridge.tsx#L205
+https://github.com/dominichackett/memecoinlauncher/blob/74e7ec5b8520232623b354044aa73abfe5afd69f/src/components/Bridge/Bridge.tsx#L205-L213
 
 https://github.com/dominichackett/memecoinlauncher/blob/74e7ec5b8520232623b354044aa73abfe5afd69f/src/components/Bridge/Bridge.tsx#L216
 
