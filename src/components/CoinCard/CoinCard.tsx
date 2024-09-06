@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { lockedPeriod,tokensLocked } from '../../../utils/utils';
+import { useEthersSigner } from '../../signers/signers';
+import { useAccount } from 'wagmi';
+import Notification
+ from '../Notification/Notification';
+ import { useConsent } from '@xmtp/react-sdk';
 const CoinCard = ({token}) => {
   
+  const signer = useEthersSigner()
+  const account = useAccount()
+ // NOTIFICATIONS functions
+ const [notificationTitle, setNotificationTitle] = useState();
+ const [notificationDescription, setNotificationDescription] = useState();
+ const [dialogType, setDialogType] = useState(1);
+ const [show, setShow] = useState(false);
+ const close = async () => {
+setShow(false);
+};
+
+
   
- 
-  const handleSubscribe = () => {
-    // Add your bridging logic here
-  };
 
   return (
     <div className="flex justify-center items-center p-8 bg-gray-100">
@@ -54,14 +67,15 @@ const CoinCard = ({token}) => {
  
  
  
-        {/* Subscribe Button */}
-        <button
-          onClick={handleSubscribe}
-          className="w-full bg-black text-white hover:bg-gray-800 py-2 rounded-md transition-colors"
-        >
-          Subscribe 
-        </button>
+       
       </div>
+      <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
     </div>
   );
 };

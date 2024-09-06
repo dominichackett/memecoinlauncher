@@ -5,8 +5,13 @@ import styles from '../styles/Home.module.css';
 import Footer from '../components/Footer/Footer'
 import Header from '../components/Header/Header';
 import Verify from '../components/Verify/Verify'
+import { useState } from 'react';
 const Home: NextPage = () => {
- 
+ const [coinImage,setCoinImage] = useState("/images/memecoin.jpg")
+
+ const setTokenImage = (image)=>{
+    setCoinImage(image);
+ }
   return (
     <div className={styles.container}>
       <Head>
@@ -22,8 +27,8 @@ const Home: NextPage = () => {
        <div> <h1 className="mb-2 text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >
 Meme Coin Launcher.  Verify
 </h1>
-<Verify />
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
+<Verify setTokenImage={setTokenImage}/>
+</div><img src={coinImage} className='h-[400px] rounded-full border-8 border-gray-400'/>
        </main> 
        <Footer />
 

@@ -23,6 +23,7 @@ const Home: NextPage = () => {
     const [gotDeloyedChains,setGotDeployedChains] = useState()
     const [isDeployed,setisDeployed] = useState(new Map())
     const [deployedChains,setDeployedChains] = useState([])
+    const [refreshData,setRefreshData] =  useState(new Date().getTime())
     const signer = useEthersSigner()
     const account = useAccount()
      // NOTIFICATIONS functions
@@ -103,6 +104,8 @@ const _lz = selectedOption.getAttribute("data-lz");
           setNotificationTitle("Deploy Token")
           setShow(true)       
 
+          setRefreshData(new Date().getTime())
+
     }catch(error)
     {
      setDialogType(2) //Error
@@ -144,7 +147,8 @@ const _lz = selectedOption.getAttribute("data-lz");
     getChains()
  
 
- },[token])
+ },[token,refreshData])
+
  useEffect(()=>{
   
   
@@ -177,7 +181,7 @@ return (
       </Head>
         <Header />
         <main className="mt-40" >
-       <div className=' flex flex-col items-center justify-center text-black hover:text-gray-500'>                          <img alt="" src={token?.image ? token.image : "/images/memecoin.jpg"} className="h-24 w-24 rounded-full border-2 border-gray-400" />
+       <div className=' flex flex-col items-center justify-center text-black hover:text-gray-500'>                          <img alt="" src={token?.image ? token.image : "/images/memecoin.jpg"} className="h-48 w-48 rounded-full border-2 border-gray-400" />
 
         <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" > {token?.symbol} - {token?.name}</h1>
        <div className='mt-2  flex flex-row'> <span className='mt-2 font-medium'>Decimals:</span><span className="ml-2 inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-lg font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
@@ -240,14 +244,14 @@ return (
     </div>
   
 
-    <div className="mt-8 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
+  { 1 >2 &&  <div className="mt-8 grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-24" >
        <div> <h1 className="mb-2 text-3xl lg:text-4xl xl:text-5xl font-bold lg:tracking-tight xl:tracking-tighter" >
 Send Message to Subscribers</h1>
 <span className='mb-2 flex flex-row pt-4'>Powered By  <img src="/images/xmtp.png"  className='ml-2 h-[30px]'/></span>
 
 <MessageSubscribers />
-</div><img src="/images/memecoin.jpg" className='h-[400px] rounded-full border-8 border-gray-400'/>
-       </div> 
+</div><img src={token?.image ? token.image: "/images/memecoin.jpg"} className='h-[400px] rounded-full border-8 border-gray-400'/>
+       </div>} 
 
 
   

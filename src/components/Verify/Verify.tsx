@@ -5,12 +5,11 @@ import { ethers } from 'ethers';
 import { useEthersSigner } from '../../signers/signers';
 import { useAccount ,useChainId} from 'wagmi';
 import { createAttestation } from '../../../ethsign/ethsign';
-const VerifyToken = () => {
+const VerifyToken = ({setTokenImage}) => {
   const [tokens,setTokens] = useState([])
   const chainId = useChainId()
   const signer = useEthersSigner()
   const account = useAccount()
-
   const [amount, setAmount] = useState('');
   const [publicTeam, setPublicTeam] = useState(1);
   const [tokensLocked, setTokensLocked] = useState(1);
@@ -93,6 +92,8 @@ setShow(false);
     }
   };
 
+ 
+
   return (
     <div className="flex justify-center items-center p-8 bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
@@ -106,7 +107,7 @@ setShow(false);
           <select
             id="token"
             value={token}
-            onChange={(e) => setToken(e.target.value)}
+            onChange={(e)=>setToken(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           >
             {tokens.map((token) => (
