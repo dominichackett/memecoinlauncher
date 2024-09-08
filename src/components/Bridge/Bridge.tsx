@@ -58,6 +58,8 @@ const TokenBridge = () => {
         console.log(coins)
         for(const index in data)
         {
+          if(data[index].token !="0x3BAc68d254063dC5Cc711d6e7F2e855B53F7B35a")
+
            _tokens.push({...data[index],decimals:18})
         }
         setTokens(_tokens)
@@ -120,7 +122,6 @@ setShow(false);
       }  
 
     }
-
     const tokenContract = new ethers.Contract(tokenAddress,OFTABI,signer)
     const _balance = await tokenContract.balanceOf(account.address)
    
@@ -144,9 +145,9 @@ setShow(false);
       setTokenBalance(userBalance)
     }
     console.log(token)
-    if(token)
+    if(token && signer)
       _getBalance()
-  }, [token]);
+  }, [token,chainId,signer]);
 
   const handleBridge = async() => {
     

@@ -38,6 +38,7 @@ const [tokens,setTokens] = useState([])
         console.log(coins)
         for(const index in data)
         {
+          if(data[index].token !="0x3BAc68d254063dC5Cc711d6e7F2e855B53F7B35a")
            _tokens.push({...data[index],decimals:18})
         }
         setTokens(_tokens)
